@@ -104,6 +104,8 @@ class RegisterViewController: UIViewController {
         
         emailField.delegate = self
         passwordField.delegate = self
+        
+        
         // Add subviews
         view.addSubview(scrollView)
         scrollView.addSubview(imageView)
