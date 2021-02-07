@@ -2,6 +2,8 @@ import UIKit
 import FirebaseAuth
 import JGProgressHUD
 // Innocent line of code
+// Another
+
 
 class ConversationsViewController: UIViewController {
 
