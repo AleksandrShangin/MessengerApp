@@ -107,7 +107,6 @@ class RegisterViewController: UIViewController {
         emailField.delegate = self
         passwordField.delegate = self
         
-        
         // Add subviews
         view.addSubview(scrollView)
         scrollView.addSubview(imageView)
@@ -136,7 +135,6 @@ class RegisterViewController: UIViewController {
         emailField.frame = CGRect(x: 30, y: lastNameField.bottom + 10, width: scrollView.width - 60, height: 52)
         passwordField.frame = CGRect(x: 30, y: emailField.bottom + 10, width: scrollView.width - 60, height: 52)
         registerButton.frame = CGRect(x: 30, y: passwordField.bottom + 10, width: scrollView.width - 60, height: 52)
-
     }
     
     @objc private func didTapChangeProfilePic() {
@@ -146,12 +144,10 @@ class RegisterViewController: UIViewController {
     }
     
     @objc private func registerButtonTapped() {
-        
         firstNameField.resignFirstResponder()
         lastNameField.resignFirstResponder()
         emailField.resignFirstResponder()
         passwordField.resignFirstResponder()
-        
         guard let firstName = firstNameField.text,
               let lastName = lastNameField.text,
               let email = emailField.text,
@@ -167,10 +163,8 @@ class RegisterViewController: UIViewController {
         
         spinner.show(in: view)
         // Firebase Log In
-        
         DatabaseManager.shared.userExists(with: email) { [weak self] (exists) in
             guard let strongSelf = self else { return }
-            
             DispatchQueue.main.async {
                 strongSelf.spinner.dismiss()
             }
@@ -184,7 +178,25 @@ class RegisterViewController: UIViewController {
                     print("Error creating an account")
                     return
                 }
-                DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: email))
+                let chatUser = ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: email)
+                DatabaseManager.shared.insertUser(with: chatUser, completion: { (success) in
+                    if success {
+                        // upload image
+                        guard let image = strongSelf.imageView.image, let data = image.pngData() else {
+                            return
+                        }
+                        let filename = chatUser.profilePictureFileName
+                        StorageManager.shared.uploadProfilePicture(with: data, fileName: filename) { (result) in
+                            switch (result) {
+                            case .success(let downloadUrl):
+                                UserDefaults.standard.setValue(downloadUrl, forKey: "profile_picture_url")
+                                print(downloadUrl)
+                            case .failure(let error):
+                                print("Storage Manager errror: \(error)")
+                            }
+                        }
+                    }
+                })
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             }
         }
