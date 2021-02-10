@@ -99,7 +99,7 @@ class LogInViewController: UIViewController {
         scrollView.addSubview(imageView)
         scrollView.addSubview(emailField)
         scrollView.addSubview(passwordField)
-        scrollView.addSubview(loginButton)
+        scrollView.addSubview(loginButton) 
         scrollView.addSubview(facebookLoginButton)
         scrollView.addSubview(googleLoginButton)
     }
@@ -122,31 +122,26 @@ class LogInViewController: UIViewController {
         googleLoginButton.frame = CGRect(x: 30, y: facebookLoginButton.bottom + 20, width: scrollView.width - 60, height: 52)
     }
     
-    
     @objc private func loginButtonTapped() {
-        
         emailField.resignFirstResponder()
         passwordField.resignFirstResponder()
-        
         guard let email = emailField.text, let password = passwordField.text, !email.isEmpty, !password.isEmpty, password.count >= 6 else {
             alertUserLoginError()
             return
         }
-        
         spinner.show(in: view)
         // Firebase Log In
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] (authResult, error) in
             guard let strongSelf = self else { return }
-            
             DispatchQueue.main.async {
                 strongSelf.spinner.dismiss()
             }
-            
             guard let result = authResult, error == nil else {
                 print("Failed log in user with email: \(email)")
                 return
             }
             let user = result.user
+//            UserDefaults.standard.set(email, forKey: "email")
             print("Logged in user: \(user)")
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
         }
@@ -206,6 +201,8 @@ extension LogInViewController: LoginButtonDelegate {
                     print("Failed to get email and username from fb result")
                     return
             }
+            
+//            UserDefaults.standard.set(email, forKey: "email")
             
             DatabaseManager.shared.userExists(with: email) { (exists) in
                 if !exists {

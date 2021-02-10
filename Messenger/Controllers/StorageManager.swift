@@ -15,6 +15,7 @@ final class StorageManager {
     private let storage = Storage.storage().reference()
     
     public typealias UploadPictureCompletion = (Result<String, Error>) -> Void
+    
     /// Uploads pictures to Firebase Storage and returns completion with URL String to  download
     public func uploadProfilePicture(with data: Data, fileName: String, completion: @escaping UploadPictureCompletion) {
         storage.child("images/\(fileName)").putData(data, metadata: nil) { (storageMetadata, error) in
@@ -40,6 +41,17 @@ final class StorageManager {
     public enum StorageErrors: Error {
         case failedToUpload
         case failedToGetDownloadUrl
+    }
+    
+    public func downloadURL(for path: String, completion: @escaping (Result<URL, Error>) -> Void) {
+        let reference = storage.child(path)
+        reference.downloadURL { (url, error) in
+            guard let url = url, error == nil else {
+                completion(.failure(StorageErrors.failedToGetDownloadUrl))
+                return
+            }
+            completion(.success(url))
+        }
     }
     
 }

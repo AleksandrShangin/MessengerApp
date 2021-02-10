@@ -1,18 +1,18 @@
-//
-//  DatabaseManager.swift
-//  Messenger
-//
-//  Created by Alex on 2/4/21.
-//
-
 import Foundation
 import FirebaseDatabase
+
 
 
 final class DatabaseManager {
     
     static let shared = DatabaseManager()
     private let database = Database.database().reference()
+    
+    static func safeEmail(emailAddress: String) -> String {
+        var safeEmail = emailAddress.replacingOccurrences(of: ".", with: "-")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+        return safeEmail
+    }
     
 }
 
@@ -39,10 +39,54 @@ extension DatabaseManager {
                 completion(false)
                 return
             }
-            completion(true)
+            self.database.child("users").observeSingleEvent(of: .value) { (dataSnapshot) in
+                if var userCollection = dataSnapshot.value as? [[String: String]] {
+                    // Append to User Dictionary
+                    let newElement = ["name": user.firstName + " " + user.lastName, "email": user.safeEmail]
+                    userCollection.append(newElement)
+                    self.database.child("users").setValue(userCollection) { (error, _) in
+                        guard error == nil else {
+                            completion(false)
+                            return
+                        }
+                        completion(true)
+                    }
+                } else {
+                    // Create that Dictionary
+                    let newCollection: [[String: String]] = [
+                        ["name": user.firstName + " " + user.lastName,
+                         "email": user.safeEmail
+                        ]
+                    ]
+                    self.database.child("users").setValue(newCollection) { (error, _) in
+                        guard error == nil else {
+                            return
+                        }
+                        completion(true)
+                    }
+                }
+            }
         }
     }
+    
+    public func getAllUsers(completion: @escaping (Result<[[String: String]], Error>) -> Void ) {
+        database.child("users").observeSingleEvent(of: .value) { (dataSnapshot) in
+            guard let value = dataSnapshot.value as? [[String: String]] else {
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            completion(.success(value))
+        }
+    }
+    
+    public enum DatabaseError: Error {
+        case failedToFetch
+    }
+    
 }
+
+
+
 
 struct ChatAppUser {
     
