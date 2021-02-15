@@ -7,6 +7,8 @@ import JGProgressHUD
 
 class LogInViewController: UIViewController {
     
+    
+    //MARK: - Properties
     private let spinner = JGProgressHUD(style: .dark)
     
     private let scrollView: UIScrollView = {
@@ -74,6 +76,8 @@ class LogInViewController: UIViewController {
     
     private var loginObserber: NSObjectProtocol?
     
+    
+    //MARK: - ViewLifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         loginObserber = NotificationCenter.default.addObserver(forName: .didLoginNotification, object: nil, queue: .main) { [weak self] (notification) in
@@ -121,6 +125,7 @@ class LogInViewController: UIViewController {
         facebookLoginButton.frame = CGRect(x: 30, y: loginButton.bottom + 20, width: scrollView.width - 60, height: 52)
         googleLoginButton.frame = CGRect(x: 30, y: facebookLoginButton.bottom + 20, width: scrollView.width - 60, height: 52)
     }
+    
     
     @objc private func loginButtonTapped() {
         emailField.resignFirstResponder()
@@ -177,6 +182,7 @@ extension LogInViewController: UITextFieldDelegate {
 }
 
 
+//MARK: - Facebook Login
 extension LogInViewController: LoginButtonDelegate {
     
     func loginButton(_ loginButton: FBLoginButton, didCompleteWith result: LoginManagerLoginResult?, error: Error?) {
@@ -202,8 +208,6 @@ extension LogInViewController: LoginButtonDelegate {
                     return
             }
             
-//            UserDefaults.standard.set(email, forKey: "email")
-            
             DatabaseManager.shared.userExists(with: email) { (exists) in
                 if !exists {
                     let chatUser = ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: email)
@@ -213,17 +217,13 @@ extension LogInViewController: LoginButtonDelegate {
                             guard let url = URL(string: pictureUrl) else {
                                 return
                             }
-                            
                             print("Downloading data from Facebook image")
-                            
                             URLSession.shared.dataTask(with: url) { (data, _, _) in
                                 guard let data = data else {
                                     print("Failed to get data from facebook")
                                     return
                                 }
-                                
                                 print("Got data from FB, uploading...")
-                                
                                 let filename = chatUser.profilePictureFileName
                                 StorageManager.shared.uploadProfilePicture(with: data, fileName: filename) { (result) in
                                     switch (result) {
@@ -250,7 +250,6 @@ extension LogInViewController: LoginButtonDelegate {
                     return
                 }
                 print("\nSuccessfully logged user in with Facebook\n")
-                
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             }
         }

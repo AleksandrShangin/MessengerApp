@@ -45,6 +45,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
     
+    
+    //MARK: - Google Sign In
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
         guard error == nil else {
             if let error = error {
@@ -62,9 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
               let lastName = user.profile.familyName else {
                 return
         }
-        
-//        UserDefaults.standard.set(email, forKey: "email")
-        
+ 
         DatabaseManager.shared.userExists(with: email) { (exists) in
             if !exists {
                 // Insert to Database

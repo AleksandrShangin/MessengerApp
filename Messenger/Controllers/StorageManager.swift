@@ -1,12 +1,6 @@
-//
-//  StorageManager.swift
-//  Messenger
-//
-//  Created by Alex on 2/8/21.
-//
-
 import Foundation
 import FirebaseStorage
+
 
 
 final class StorageManager {

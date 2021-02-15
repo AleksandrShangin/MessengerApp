@@ -22,9 +22,7 @@ class ProfileViewController: UIViewController {
   
     func createTableHeader() -> UIView? {
         guard let email = Auth.auth().currentUser?.email else { return nil }
-//        guard let email = UserDefaults.standard.value(forKey: "email") as? String else {
-//            return nil
-//        }
+
         let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
         let filename = safeEmail + "_profile_picture.png"
         let path = "images/" + filename
@@ -104,9 +102,6 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
         }))
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(actionSheet, animated: true, completion: nil)
-        
-        
-        
     }
     
 }
