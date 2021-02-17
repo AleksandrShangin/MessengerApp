@@ -126,7 +126,7 @@ class LogInViewController: UIViewController {
         googleLoginButton.frame = CGRect(x: 30, y: facebookLoginButton.bottom + 20, width: scrollView.width - 60, height: 52)
     }
     
-    
+    //MARK: - Methods
     @objc private func loginButtonTapped() {
         emailField.resignFirstResponder()
         passwordField.resignFirstResponder()
@@ -146,7 +146,20 @@ class LogInViewController: UIViewController {
                 return
             }
             let user = result.user
-//            UserDefaults.standard.set(email, forKey: "email")
+            
+            let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
+            DatabaseManager.shared.getDataFor(path: safeEmail) { (result) in
+                switch result {
+                case .success(let data):
+                    guard let userData = data as? [String: Any], let firstName = userData["firstName"] as? String, let lastName = userData["lastName"] as? String else {
+                        return
+                    }
+                    UserDefaults.standard.set("\(firstName) \(lastName)", forKey: "name")
+                case .failure(let error):
+                    print("Failed to read data with error: \(error)")
+                }
+            }
+            
             print("Logged in user: \(user)")
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
         }
@@ -166,7 +179,7 @@ class LogInViewController: UIViewController {
     
 }
 
-
+//MARK: - Extension For TextField Delegate
 extension LogInViewController: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -207,6 +220,8 @@ extension LogInViewController: LoginButtonDelegate {
                     print("Failed to get email and username from fb result")
                     return
             }
+            
+            UserDefaults.standard.set("\(firstName) \(lastName)", forKey: "name")
             
             DatabaseManager.shared.userExists(with: email) { (exists) in
                 if !exists {
