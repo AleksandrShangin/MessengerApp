@@ -42,6 +42,8 @@ class ConversationsViewController: UIViewController {
         return label
     }()
     
+    private var loginObserber: NSObjectProtocol?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(didTapComposeButton))
@@ -50,12 +52,24 @@ class ConversationsViewController: UIViewController {
         setupTableView()
         fetchConversations()
         startListeningForConversations()
+        
+        loginObserber = NotificationCenter.default.addObserver(forName: .didLoginNotification, object: nil, queue: .main) { [weak self] (notification) in
+            guard let strongSelf = self else {
+                return
+            }
+            strongSelf.startListeningForConversations()
+        }
+        
     }
     
     
     private func startListeningForConversations() {
         guard let email = Auth.auth().currentUser?.email else {
             return
+        }
+        
+        if let obserber = loginObserber {
+            NotificationCenter.default.removeObserver(obserber)
         }
         print("Starting conversation fetch...")
         let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
@@ -149,7 +163,6 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
         let model = conversations[indexPath.row]
         let vc = ChatViewController(with: model.otherUserEmail, id: model.id)
         vc.title = model.name
@@ -161,8 +174,24 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
         return 120
     }
     
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .delete
+    }
     
-    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // begin delete
+            let conversationId = conversations[indexPath.row].id
+            tableView.beginUpdates()
+            DatabaseManager.shared.deleteConversation(conversationId: conversationId) { [weak self] (success) in
+                if success {
+                    self?.conversations.remove(at: indexPath.row)
+                    tableView.deleteRows(at: [indexPath], with: .left)
+                }
+            }
+            tableView.endUpdates()
+        }
+    }
     
 }
 
