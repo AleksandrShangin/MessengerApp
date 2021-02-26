@@ -13,6 +13,7 @@
 		FA3B9BDF25D0381A00A2C27F /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3B9BDE25D0381A00A2C27F /* ChatViewController.swift */; };
 		FA3FBF8025D1315500B25F9A /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3FBF7F25D1315500B25F9A /* StorageManager.swift */; };
 		FA41A9A625CAF8A200E92591 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FA41A9A525CAF8A200E92591 /* GoogleService-Info.plist */; };
+		FA6916AC25E78D69002F8771 /* LocationPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6916AB25E78D69002F8771 /* LocationPickerViewController.swift */; };
 		FA6A848D25E02FA1007F2E97 /* NewConversationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6A848C25E02FA0007F2E97 /* NewConversationCell.swift */; };
 		FA81639725C93690001023B0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA81639625C93690001023B0 /* AppDelegate.swift */; };
 		FA81639925C93690001023B0 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA81639825C93690001023B0 /* SceneDelegate.swift */; };
@@ -38,6 +39,7 @@
 		FA3B9BDE25D0381A00A2C27F /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		FA3FBF7F25D1315500B25F9A /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageManager.swift; path = Messenger/Controllers/StorageManager.swift; sourceTree = SOURCE_ROOT; };
 		FA41A9A525CAF8A200E92591 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		FA6916AB25E78D69002F8771 /* LocationPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPickerViewController.swift; sourceTree = "<group>"; };
 		FA6A848C25E02FA0007F2E97 /* NewConversationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationCell.swift; sourceTree = "<group>"; };
 		FA81639325C93690001023B0 /* Messenger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messenger.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA81639625C93690001023B0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 				FA8163C025C942E0001023B0 /* NewConversationViewController.swift */,
 				FA8163C325C94311001023B0 /* ProfileViewController.swift */,
 				FA3B9BDE25D0381A00A2C27F /* ChatViewController.swift */,
+				FA6916AB25E78D69002F8771 /* LocationPickerViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -334,6 +337,7 @@
 				FA3B9BDF25D0381A00A2C27F /* ChatViewController.swift in Sources */,
 				FA8163BB25C94286001023B0 /* PhotoViewerViewController.swift in Sources */,
 				FA3FBF8025D1315500B25F9A /* StorageManager.swift in Sources */,
+				FA6916AC25E78D69002F8771 /* LocationPickerViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
