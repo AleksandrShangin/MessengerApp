@@ -5,11 +5,14 @@ import MessageKit
 import CoreLocation
 
 
-
+/// Manager object to read and write data to real time firebase database
 final class DatabaseManager {
     
+    /// Shared instance of class
     static let shared = DatabaseManager()
     private let database = Database.database().reference()
+    
+    private init() {}
     
     static func safeEmail(emailAddress: String) -> String {
         var safeEmail = emailAddress.replacingOccurrences(of: ".", with: "-")
@@ -22,8 +25,9 @@ final class DatabaseManager {
 
 extension DatabaseManager {
     
+    /// Returns dictionary node at child path
     public func getDataFor(path: String, completion: @escaping (Result<Any, Error>) -> Void) {
-        self.database.child("\(path)").observe(.value) { (snapshot) in
+        database.child("\(path)").observe(.value) { (snapshot) in
             guard let value = snapshot.value else {
                 completion(.failure(DatabaseError.failedToFetch))
                 return
@@ -38,6 +42,10 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
+    /// Check if user exists for given email
+    /// Parameters
+    /// - `email`:                  Target email to be checked
+    /// - `completion`:       Async closure to return with result
     func userExists(with email: String, completion: @escaping (Bool) -> Void) {
         let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
         database.child(safeEmail).observeSingleEvent(of: .value) { (dataSnapshot) in
@@ -51,18 +59,21 @@ extension DatabaseManager {
     
     /// Inserts new users to database
     public func insertUser(with user: ChatAppUser, completion: @escaping (Bool) -> Void) {
-        database.child(user.safeEmail).setValue(["firstName": user.firstName, "lastName": user.lastName]) { (error, ref) in
+        database.child(user.safeEmail).setValue(["firstName": user.firstName, "lastName": user.lastName]) { [weak self] (error, _) in
+            guard let strongSelf = self else {
+                return
+            }
             guard error == nil else {
                 print("Failed to write to database")
                 completion(false)
                 return
             }
-            self.database.child("users").observeSingleEvent(of: .value) { (dataSnapshot) in
+            strongSelf.database.child("users").observeSingleEvent(of: .value) { (dataSnapshot) in
                 if var userCollection = dataSnapshot.value as? [[String: String]] {
                     // Append to User Dictionary
                     let newElement = ["name": user.firstName + " " + user.lastName, "email": user.safeEmail]
                     userCollection.append(newElement)
-                    self.database.child("users").setValue(userCollection) { (error, _) in
+                    strongSelf.database.child("users").setValue(userCollection) { (error, _) in
                         guard error == nil else {
                             completion(false)
                             return
@@ -76,7 +87,7 @@ extension DatabaseManager {
                          "email": user.safeEmail
                         ]
                     ]
-                    self.database.child("users").setValue(newCollection) { (error, _) in
+                    strongSelf.database.child("users").setValue(newCollection) { (error, _) in
                         guard error == nil else {
                             return
                         }
@@ -87,6 +98,7 @@ extension DatabaseManager {
         }
     }
     
+    /// Gets all users from database
     public func getAllUsers(completion: @escaping (Result<[[String: String]], Error>) -> Void) {
         database.child("users").observeSingleEvent(of: .value) { (dataSnapshot) in
             guard let value = dataSnapshot.value as? [[String: String]] else {
@@ -616,9 +628,7 @@ extension DatabaseManager {
                 completion(.success(id))
                 return
             }
-            
             completion(.failure(DatabaseError.failedToFetch))
-
         }
     }
     

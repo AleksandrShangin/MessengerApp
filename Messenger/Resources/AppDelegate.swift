@@ -13,7 +13,7 @@ import GoogleSignIn
 
 @available(iOS 13.0, *)
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     
@@ -24,6 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         
         GIDSignIn.sharedInstance()?.clientID = FirebaseApp.app()?.options.clientID
         GIDSignIn.sharedInstance()?.delegate = self
+        
         return true
     }
     
@@ -45,8 +46,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
     
+}
+
+//MARK: - GIDSignInDelegate
+
+@available(iOS 13.0, *)
+extension AppDelegate: GIDSignInDelegate {
     
-    //MARK: - Google Sign In
+    
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
         guard error == nil else {
             if let error = error {
@@ -54,7 +61,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             }
             return
         }
-        
         guard let user = user else {
             return
         }
@@ -64,7 +70,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
               let lastName = user.profile.familyName else {
                 return
         }
-        
         UserDefaults.standard.set("\(firstName) \(lastName)", forKey: "name")
  
         DatabaseManager.shared.userExists(with: email) { (exists) in
@@ -94,7 +99,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                 }
             }
         }
-        
         guard let authentication = user.authentication else {
             print("Missing Auth object off of people")
             return
@@ -121,7 +125,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
         return GIDSignIn.sharedInstance().handle(url)
     }
-    
 }
-
-

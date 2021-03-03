@@ -3,24 +3,14 @@ import FirebaseAuth
 import JGProgressHUD
 
 
-struct Conversation {
-    let id: String
-    let name: String
-    let otherUserEmail: String
-    let latestMessage: LatestMessage
-}
 
 
-struct LatestMessage {
-    let date: String
-    let text: String
-    let isRead: Bool
-}
+/// Controller that shows list of conversations
+final class ConversationsViewController: UIViewController {
 
-
-
-class ConversationsViewController: UIViewController {
-
+    
+    //MARK: - Properties
+    
     private let spinner = JGProgressHUD(style: .dark)
     
     private var conversations = [Conversation]()
@@ -44,13 +34,15 @@ class ConversationsViewController: UIViewController {
     
     private var loginObserber: NSObjectProtocol?
     
+    
+    //MARK: - View Life Cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(didTapComposeButton))
         view.addSubview(tableView)
         view.addSubview(noConversationsLabel)
         setupTableView()
-        fetchConversations()
         startListeningForConversations()
         
         loginObserber = NotificationCenter.default.addObserver(forName: .didLoginNotification, object: nil, queue: .main) { [weak self] (notification) in
@@ -62,29 +54,38 @@ class ConversationsViewController: UIViewController {
         
     }
     
+  
+    //MARK: - Methods
     
     private func startListeningForConversations() {
         guard let email = Auth.auth().currentUser?.email else {
             return
         }
+        let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
         
         if let obserber = loginObserber {
             NotificationCenter.default.removeObserver(obserber)
         }
         print("Starting conversation fetch...")
-        let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
+        
         DatabaseManager.shared.getAllConversations(for: safeEmail) { [weak self] (result) in
             switch result {
             case .success(let conversations):
                 print("successfully got conversation models")
                 guard !conversations.isEmpty else {
+                    self?.tableView.isHidden = true
+                    self?.noConversationsLabel.isHidden = false
                     return
                 }
+                self?.noConversationsLabel.isHidden = true
+                self?.tableView.isHidden = false
                 self?.conversations = conversations
                 DispatchQueue.main.async {
                     self?.tableView.reloadData()
                 }
             case .failure(let error):
+                self?.tableView.isHidden = true
+                self?.noConversationsLabel.isHidden = false
                 print("Failed to get convos: \(error)")
             }
         }
@@ -97,7 +98,6 @@ class ConversationsViewController: UIViewController {
             guard let strongSelf = self else {
                 return
             }
-            
             let currentConversation = strongSelf.conversations
             if let targetConversation = currentConversation.first(where: {
                 $0.otherUserEmail == DatabaseManager.safeEmail(emailAddress: result.email)
@@ -111,7 +111,6 @@ class ConversationsViewController: UIViewController {
                 strongSelf.createNewConversation(result: result)
             }
         }
-        
         let navVC = UINavigationController(rootViewController: vc)
         present(navVC, animated: true, completion: nil)
     }
@@ -150,6 +149,7 @@ class ConversationsViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
+        noConversationsLabel.frame = CGRect(x: 10, y: (view.height-100)/2, width: view.width-20, height: 100)
     }
 
     
@@ -165,7 +165,7 @@ class ConversationsViewController: UIViewController {
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: false)
         } else {
-            print("\n\(Auth.auth().currentUser?.email) \(Auth.auth().currentUser?.uid)\n")
+            print("\n\(Auth.auth().currentUser?.email) \(UserDefaults.standard.value(forKey: "name"))\n")
         }
     }
     
@@ -174,12 +174,12 @@ class ConversationsViewController: UIViewController {
         tableView.dataSource = self
     }
     
-    private func fetchConversations() {
-        tableView.isHidden = false
-    }
+    
     
 }
 
+
+//MARK: - TableView Extention
 
 extension ConversationsViewController: UITableViewDelegate, UITableViewDataSource {
     

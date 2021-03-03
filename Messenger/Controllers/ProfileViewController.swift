@@ -6,19 +6,10 @@ import SDWebImage
 
 
 
-enum ProfileViewModelType {
-    case info, logout
-}
 
 
-struct ProfileViewModel {
-    let viewModelType: ProfileViewModelType
-    let title: String
-    let handler: (() -> Void)?
-}
 
-
-class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController {
 
     
     @IBOutlet weak var tableView: UITableView!
@@ -45,6 +36,8 @@ class ProfileViewController: UIViewController {
                 FBSDKLoginKit.LoginManager().logOut()
                 // Google Sign Out
                 GIDSignIn.sharedInstance()?.signOut()
+                UserDefaults.standard.setValue(nil, forKey: "name")
+                UserDefaults.standard.setValue(nil, forKey: "profile_picture_url")
                 do {
                     try Auth.auth().signOut()
                     let vc = LogInViewController()
@@ -58,10 +51,8 @@ class ProfileViewController: UIViewController {
             }))
             actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             strongSelf.present(actionSheet, animated: true, completion: nil)
-        
         }))
         
-        // tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         tableView.delegate = self
         tableView.dataSource = self
         tableView.tableHeaderView = createTableHeader()
@@ -129,12 +120,11 @@ class ProfileTableViewCell: UITableViewCell {
         self.textLabel?.text = viewModel.title
         switch viewModel.viewModelType {
         case .info:
-            self.textLabel?.textAlignment = .left
-            self.selectionStyle = .none
+            textLabel?.textAlignment = .left
+            selectionStyle = .none
         case .logout:
-            
-            self.textLabel?.textColor = .red
-            self.textLabel?.textAlignment = .center
+            textLabel?.textColor = .red
+            textLabel?.textAlignment = .center
         }
     }
 }

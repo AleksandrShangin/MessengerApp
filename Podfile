@@ -12,6 +12,8 @@ target 'Messenger' do
   pod 'Firebase/Auth'
   pod 'Firebase/Storage'
   pod 'Firebase/Database'
+  pod 'Firebase/Crashlytics'
+  pod 'Firebase/Analytics' 
  
   # Facebook Login
   pod 'FBSDKLoginKit'
@@ -21,7 +23,7 @@ target 'Messenger' do
  
   pod 'MessageKit'
   pod 'JGProgressHUD'
-  pod 'RealmSwift'
+  #  pod 'RealmSwift'
   pod 'SDWebImage'
 
 end
